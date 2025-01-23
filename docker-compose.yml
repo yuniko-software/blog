@@ -1,0 +1,49 @@
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/ssl/cert.key:/etc/nginx/cert.key:ro
+      - ./nginx/ssl/cert.crt:/etc/nginx/cert.crt:ro
+      - ./nginx/config/ghost.conf:/etc/nginx/conf.d/ghost.conf:z
+    depends_on:
+      - ghost
+    restart: always
+
+  ghost:
+    image: ghost:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      url: ${GHOST_URL}
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: ${DB_USER}
+      database__connection__password: ${DB_PASSWORD}
+      database__connection__database: ghost
+    volumes:
+      - ./ghost/config.production.json:/var/lib/ghost/config.production.json:z
+      - ./ghost/content:/var/lib/ghost/content:z
+    restart: always
+
+  db:
+    image: mysql:8.0
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+    volumes:
+      - ./mysql:/var/lib/mysql
+    restart: always
+
+volumes:
+  ghost:
+  db:

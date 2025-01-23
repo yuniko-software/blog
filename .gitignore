@@ -1,0 +1,14 @@
+*.crt
+*.key
+*.pem
+*.csr
+.env
+/ghost/content/tmp/*
+/ghost/content/data/*
+/ghost/content/logs/*
+/ghost/content/themes/casper
+/ghost/content/themes/source
+/ghost/content/images/**/*
+/ghost/content/adapters/storage/**/*
+/ghost/content/adapters/scheduling/**/*
+/mysql/*
